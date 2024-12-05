@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indovina Cosa Ordina</title>
+    <!-- Link to the standard script file -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" type="module" defer></script>
+</head>
+<body>
+    <h1>Indovina Cosa Ordina</h1>
+    <h2 id="roundIndicator">Ronda: 1</h2>
+    <div class="container">
+        <form id="gameForm">
+            <label for="playerName">Nome giocatore:</label>
+            <input type="text" id="playerName" placeholder="Inserisci il tuo nome" required>
+
+            <label for="portata">Portata principale:</label>
+            <input type="text" id="portata" placeholder="Es. Pasta, Pizza, Carne" required>
+
+            <label for="bevanda">Bevanda:</label>
+            <input type="text" id="bevanda" placeholder="Es. Acqua, Vino, Birra" required>
+
+            <label for="dessert">Dessert (opzionale):</label>
+            <input type="text" id="dessert" placeholder="Es. Tiramisù, Gelato">
+
+            <button type="submit">Invia scommessa</button>
+        </form>
+
+        <button class="button-finish" id="endRoundButton">Fine del turno</button>
+
+        <div class="results" id="results">
+            <h3>Giocatori che hanno scommesso:</h3>
+        </div>
+
+        <div class="table-results" id="tableResults" style="display:none;">
+            <h3>Risultati della Ronda:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Giocatore</th>
+                        <th>Portata</th>
+                        <th>Bevanda</th>
+                        <th>Dessert</th>
+                        <th>Punti</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+            </table>
+            <h4>Risposta corretta:</h4>
+            <p id="correctAnswer"></p>
+        </div>
+
+        <div class="round-history" id="roundHistory" style="margin-top:20px;">
+            <h3>Storico delle Ronde:</h3>
+            <select id="historyDropdown" onchange="showRoundDetails()">
+                <option value="">Seleziona una ronda</option>
+            </select>
+            <div id="historyDetails"></div>
+        </div>
+    </div>
+</body>
+</html>
