@@ -1,6 +1,4 @@
 
-// script.js
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
@@ -20,8 +18,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-let predictions = [];
-let rounds = [];
 let currentRound = 1;
 
 function updateRoundIndicator() {
@@ -29,7 +25,7 @@ function updateRoundIndicator() {
 }
 
 function savePrediction(playerName, portata, bevanda, dessert) {
-    const newPredictionRef = push(ref(database, 'predictions'));
+    const newPredictionRef = push(ref(database, `predictions/round${currentRound}`));
     set(newPredictionRef, {
         playerName,
         portata,
@@ -51,11 +47,10 @@ function submitPrediction() {
 
     savePrediction(playerName, portata, bevanda, dessert || "Nessun dessert");
     document.getElementById("gameForm").reset();
-    readPredictions(); // Update real-time data
 }
 
 function readPredictions() {
-    const predictionsRef = ref(database, 'predictions');
+    const predictionsRef = ref(database, `predictions/round${currentRound}`);
     onValue(predictionsRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -74,17 +69,60 @@ function updateResults(data) {
 }
 
 function endRound() {
-    // Logic to end round, calculate scores, and save results
-    // TODO: Update this section with scoring logic
+    const portataCorrect = prompt("Inserisci la portata principale corretta:");
+    const bevandaCorrect = prompt("Inserisci la bevanda corretta:");
+    const dessertCorrect = prompt("Inserisci il dessert corretto (opzionale):");
+
+    const predictionsRef = ref(database, `predictions/round${currentRound}`);
+    onValue(predictionsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            calculateScores(data, portataCorrect, bevandaCorrect, dessertCorrect);
+        }
+    });
+
+    currentRound++;
+    updateRoundIndicator();
+}
+
+function calculateScores(data, portataCorrect, bevandaCorrect, dessertCorrect) {
+    const resultsTableBody = document.getElementById("resultsTableBody");
+    resultsTableBody.innerHTML = "";
+
+    Object.values(data).forEach(prediction => {
+        let points = 0;
+
+        if (prediction.portata.toLowerCase() === portataCorrect.toLowerCase()) points += 5;
+        if (prediction.bevanda.toLowerCase() === bevandaCorrect.toLowerCase()) points += 3;
+        if (prediction.dessert && prediction.dessert.toLowerCase() === dessertCorrect.toLowerCase()) points += 3;
+
+        const row = `<tr>
+            <td>${prediction.playerName}</td>
+            <td>${prediction.portata}</td>
+            <td>${prediction.bevanda}</td>
+            <td>${prediction.dessert || "Nessun dessert"}</td>
+            <td>${points}</td>
+        </tr>`;
+        resultsTableBody.innerHTML += row;
+    });
+
+    document.getElementById("tableResults").style.display = "block";
+    document.getElementById("correctAnswer").innerText = `
+        Portata: ${portataCorrect}, Bevanda: ${bevandaCorrect}, Dessert: ${dessertCorrect || "Nessun dessert"}
+    `;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("gameForm");
+    const endRoundButton = document.getElementById("endRoundButton");
+
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         submitPrediction();
     });
 
+    endRoundButton.addEventListener("click", endRound);
+
     updateRoundIndicator();
-    readPredictions(); // Start real-time updates
+    readPredictions();
 });

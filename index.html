@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indovina Cosa Ordina</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="script_adjusted.js" type="module" defer></script>
 </head>
 <body>
     <h1>Indovina Cosa Ordina</h1>
@@ -28,6 +28,8 @@
             <button type="submit">Invia scommessa</button>
         </form>
 
+        <button id="endRoundButton" class="button-finish">Fine del turno</button>
+
         <div class="results" id="results">
             <h3>Giocatori che hanno scommesso:</h3>
         </div>
@@ -48,14 +50,6 @@
             </table>
             <h4>Risposta corretta:</h4>
             <p id="correctAnswer"></p>
-        </div>
-
-        <div class="round-history" id="roundHistory" style="margin-top:20px;">
-            <h3>Storico delle Ronde:</h3>
-            <select id="historyDropdown" onchange="showRoundDetails()">
-                <option value="">Seleziona una ronda</option>
-            </select>
-            <div id="historyDetails"></div>
         </div>
     </div>
 </body>
