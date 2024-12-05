@@ -59,13 +59,25 @@ function readPredictions() {
     });
 }
 
-function updateResults(data) {
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = "<h3>Giocatori che hanno scommesso:</h3>";
-
-    Object.values(data).forEach(prediction => {
-        resultsDiv.innerHTML += `<p>${prediction.playerName} ha completato la scommessa.</p>`;
+function readRoundStatus() {
+    const roundRef = ref(database, `rounds/round${currentRound}`);
+    onValue(roundRef, (snapshot) => {
+        const roundData = snapshot.val();
+        if (roundData && roundData.finished) {
+            displayRoundResults(roundData); // Muestra los resultados al finalizar el turno
+        }
     });
+}
+
+function displayRoundResults(roundData) {
+    const resultsTableBody = document.getElementById("resultsTableBody");
+    resultsTableBody.innerHTML = `<tr>
+        <td colspan="5">Risultati della Ronda ${currentRound - 1}</td>
+    </tr>`;
+    document.getElementById("correctAnswer").innerText = `
+        Portata: ${roundData.portataCorrect}, Bevanda: ${roundData.bevandaCorrect}, Dessert: ${roundData.dessertCorrect || "Nessun dessert"}
+    `;
+    document.getElementById("tableResults").style.display = "block";
 }
 
 function endRound() {
@@ -73,43 +85,32 @@ function endRound() {
     const bevandaCorrect = prompt("Inserisci la bevanda corretta:");
     const dessertCorrect = prompt("Inserisci il dessert corretto (opzionale):");
 
-    const predictionsRef = ref(database, `predictions/round${currentRound}`);
-    onValue(predictionsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            calculateScores(data, portataCorrect, bevandaCorrect, dessertCorrect);
-        }
+    const roundData = {
+        portataCorrect,
+        bevandaCorrect,
+        dessertCorrect,
+        finished: true
+    };
+
+    // Guarda el estado del turno en Firebase
+    set(ref(database, `rounds/round${currentRound}`), roundData).then(() => {
+        console.log("Turno finalizado correctamente.");
+    }).catch((error) => {
+        console.error("Error al finalizar el turno:", error);
     });
 
+    // Pasa al siguiente turno localmente
     currentRound++;
     updateRoundIndicator();
 }
 
-function calculateScores(data, portataCorrect, bevandaCorrect, dessertCorrect) {
-    const resultsTableBody = document.getElementById("resultsTableBody");
-    resultsTableBody.innerHTML = "";
+function updateResults(data) {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "<h3>Giocatori che hanno scommesso:</h3>";
 
     Object.values(data).forEach(prediction => {
-        let points = 0;
-
-        if (prediction.portata.toLowerCase() === portataCorrect.toLowerCase()) points += 5;
-        if (prediction.bevanda.toLowerCase() === bevandaCorrect.toLowerCase()) points += 3;
-        if (prediction.dessert && prediction.dessert.toLowerCase() === dessertCorrect.toLowerCase()) points += 3;
-
-        const row = `<tr>
-            <td>${prediction.playerName}</td>
-            <td>${prediction.portata}</td>
-            <td>${prediction.bevanda}</td>
-            <td>${prediction.dessert || "Nessun dessert"}</td>
-            <td>${points}</td>
-        </tr>`;
-        resultsTableBody.innerHTML += row;
+        resultsDiv.innerHTML += `<p>${prediction.playerName} ha completato la scommessa.</p>`;
     });
-
-    document.getElementById("tableResults").style.display = "block";
-    document.getElementById("correctAnswer").innerText = `
-        Portata: ${portataCorrect}, Bevanda: ${bevandaCorrect}, Dessert: ${dessertCorrect || "Nessun dessert"}
-    `;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -125,4 +126,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateRoundIndicator();
     readPredictions();
+    readRoundStatus(); // Escucha el estado del turno
 });
