@@ -6,82 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indovina Cosa Ordina</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="module">
-        // Import Firebase configuration and SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyArsk0jIctkp21ZmkQ5PckYPjo6K7jBGP4",
-            authDomain: "scommesse-cibo.firebaseapp.com",
-            databaseURL: "https://scommesse-cibo-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "scommesse-cibo",
-            storageBucket: "scommesse-cibo.firebasestorage.app",
-            messagingSenderId: "1012534919978",
-            appId: "1:1012534919978:web:f856aa464c5815e5b85453",
-            measurementId: "G-GJDXFJCVBC"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Save a new prediction to the database
-        function savePrediction(playerName, portata, bevanda, dessert) {
-            const newPredictionRef = push(ref(database, 'predictions'));
-            set(newPredictionRef, {
-                playerName,
-                portata,
-                bevanda,
-                dessert
-            });
-        }
-
-        // Read predictions in real-time
-        function readPredictions() {
-            const predictionsRef = ref(database, 'predictions');
-            onValue(predictionsRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    updateResults(data);
-                }
-            });
-        }
-
-        // Update results dynamically
-        function updateResults(data) {
-            const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = "<h3>Giocatori che hanno scommesso:</h3>";
-
-            Object.values(data).forEach(prediction => {
-                resultsDiv.innerHTML += `<p>${prediction.playerName} ha completato la scommessa.</p>`;
-            });
-        }
-
-        // Listen for form submission
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("gameForm");
-            form.addEventListener("submit", (e) => {
-                e.preventDefault();
-
-                const playerName = document.getElementById("playerName").value;
-                const portata = document.getElementById("portata").value;
-                const bevanda = document.getElementById("bevanda").value;
-                const dessert = document.getElementById("dessert").value;
-
-                if (playerName && portata && bevanda) {
-                    savePrediction(playerName, portata, bevanda, dessert || "Nessun dessert");
-                    form.reset();
-                } else {
-                    alert("Per favore, compila tutti i campi obbligatori!");
-                }
-            });
-
-            // Start listening to predictions
-            readPredictions();
-        });
-    </script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <h1>Indovina Cosa Ordina</h1>
@@ -105,6 +30,32 @@
 
         <div class="results" id="results">
             <h3>Giocatori che hanno scommesso:</h3>
+        </div>
+
+        <div class="table-results" id="tableResults" style="display:none;">
+            <h3>Risultati della Ronda:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Giocatore</th>
+                        <th>Portata</th>
+                        <th>Bevanda</th>
+                        <th>Dessert</th>
+                        <th>Punti</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+            </table>
+            <h4>Risposta corretta:</h4>
+            <p id="correctAnswer"></p>
+        </div>
+
+        <div class="round-history" id="roundHistory" style="margin-top:20px;">
+            <h3>Storico delle Ronde:</h3>
+            <select id="historyDropdown" onchange="showRoundDetails()">
+                <option value="">Seleziona una ronda</option>
+            </select>
+            <div id="historyDetails"></div>
         </div>
     </div>
 </body>
