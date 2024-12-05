@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indovina Cosa Ordina</title>
-    <!-- Link to the standard script file -->
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" type="module" defer></script>
 </head>
@@ -13,18 +12,18 @@
     <h1>Indovina Cosa Ordina</h1>
     <h2 id="roundIndicator">Ronda: 1</h2>
     <div class="container">
-        <form id="gameForm">
+        <form id="gameForm" autocomplete="off">
             <label for="playerName">Nome giocatore:</label>
-            <input type="text" id="playerName" placeholder="Inserisci il tuo nome" required>
+            <input type="text" id="playerName" placeholder="Inserisci il tuo nome" required autocomplete="off">
 
             <label for="portata">Portata principale:</label>
-            <input type="text" id="portata" placeholder="Es. Pasta, Pizza, Carne" required>
+            <input type="text" id="portata" placeholder="Es. Pasta, Pizza, Carne" required autocomplete="off">
 
             <label for="bevanda">Bevanda:</label>
-            <input type="text" id="bevanda" placeholder="Es. Acqua, Vino, Birra" required>
+            <input type="text" id="bevanda" placeholder="Es. Acqua, Vino, Birra" required autocomplete="off">
 
             <label for="dessert">Dessert (opzionale):</label>
-            <input type="text" id="dessert" placeholder="Es. Tiramisù, Gelato">
+            <input type="text" id="dessert" placeholder="Es. Tiramisù, Gelato" autocomplete="off">
 
             <button type="submit">Invia scommessa</button>
         </form>
@@ -32,7 +31,7 @@
         <button class="button-finish" id="endRoundButton">Fine del turno</button>
 
         <div class="results" id="results">
-            <h3>Giocatori che hanno scommesso:</h3>
+            <h3>Giocatori che hanno completato le scommesse:</h3>
         </div>
 
         <div class="table-results" id="tableResults" style="display:none;">

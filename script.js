@@ -67,6 +67,27 @@ function readRoundStatus() {
         const roundData = snapshot.val();
         if (roundData && roundData.finished) {
             displayRoundResults(roundData); // Muestra los resultados al finalizar el turno
+            
+            // Actualiza la ronda para todos los usuarios
+            currentRound++;
+            updateRoundIndicator();
+
+            // Reabrir apuestas para la nueva ronda
+            set(ref(database, `state`), { bettingClosed: false });
+        }
+    });
+}
+
+function checkBettingState() {
+    const stateRef = ref(database, `state`);
+    onValue(stateRef, (snapshot) => {
+        const state = snapshot.val();
+        if (state && state.bettingClosed) {
+            // Deshabilitar el formulario
+            document.getElementById("gameForm").style.display = "none";
+        } else {
+            // Habilitar el formulario
+            document.getElementById("gameForm").style.display = "block";
         }
     });
 }
@@ -76,11 +97,11 @@ function displayRoundResults(roundData) {
     resultsTableBody.innerHTML = "";
 
     const correctAnswersRow = `<tr>
-        <td colspan="5"><strong>Risultati della Ronda ${currentRound}</strong></td>
+        <td colspan="5"><strong>Risultati della Ronda ${currentRound - 1}</strong></td>
     </tr>`;
     resultsTableBody.innerHTML += correctAnswersRow;
 
-    const predictionsRef = ref(database, `predictions/round${currentRound}`);
+    const predictionsRef = ref(database, `predictions/round${currentRound - 1}`);
     onValue(predictionsRef, (snapshot) => {
         const predictions = snapshot.val();
         if (predictions) {
@@ -123,14 +144,22 @@ function endRound() {
         finished: true
     };
 
+    // Guarda el estado del turno en Firebase
     set(ref(database, `rounds/round${currentRound}`), roundData).then(() => {
         console.log("Turno finalizado correctamente.");
     }).catch((error) => {
         console.error("Error al finalizar el turno:", error);
     });
 
+    // Deshabilitar el formulario de apuestas globalmente
+    set(ref(database, `state`), { bettingClosed: true });
+
+    // Pasa al siguiente turno localmente
     currentRound++;
     updateRoundIndicator();
+
+    // Reabrir apuestas para la siguiente ronda
+    set(ref(database, `state`), { bettingClosed: false });
 }
 
 function updateResults(data) {
@@ -156,4 +185,5 @@ document.addEventListener("DOMContentLoaded", () => {
     updateRoundIndicator();
     readPredictions();
     readRoundStatus(); // Escucha el estado del turno
+    checkBettingState(); // Escucha el estado de apuestas
 });
