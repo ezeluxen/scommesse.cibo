@@ -71,12 +71,17 @@ function readRoundStatus() {
 
 function displayRoundResults(roundData) {
     const resultsTableBody = document.getElementById("resultsTableBody");
-    resultsTableBody.innerHTML = `<tr>
-        <td colspan="5">Risultati della Ronda ${currentRound - 1}</td>
+    resultsTableBody.innerHTML = "";
+
+    const correctAnswersRow = `<tr>
+        <td colspan="5">Risultati della Ronda ${currentRound}</td>
     </tr>`;
+    resultsTableBody.innerHTML += correctAnswersRow;
+
     document.getElementById("correctAnswer").innerText = `
         Portata: ${roundData.portataCorrect}, Bevanda: ${roundData.bevandaCorrect}, Dessert: ${roundData.dessertCorrect || "Nessun dessert"}
     `;
+
     document.getElementById("tableResults").style.display = "block";
 }
 
